@@ -1,0 +1,5 @@
+example_id                                           | status | run_time        |
+---------------------------------------------------- | ------ | --------------- |
+./spec/requests/fit_gap_contract_spec.rb[1:1]        | passed | 0.08432 seconds |
+./spec/requests/portfolio_authorization_spec.rb[1:1] | failed | 0.12458 seconds |
+./spec/requests/tenant_isolation_spec.rb[1:1]        | failed | 0.12907 seconds |
