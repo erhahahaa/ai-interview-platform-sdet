@@ -35,7 +35,7 @@ The source company handle (a short distinctive handle) and the original repo own
 - `prompts/One-Day Orchestrated Plan Quality-Net Case Study (AI Agent Prompt).md:9` — forbidden-name: company (stray doc)
 - `assessment/state.md:8` — forbidden-name: company (untracked working doc)
 
-Third-party / client infra name ("paragon") in k8s GKE nodepool + compute-class labels — verify whether this must also be scrubbed:
+Third-party / client infra name ("example") in k8s GKE nodepool + compute-class labels — verify whether this must also be scrubbed:
 - `api/k8s/deployment.yaml:3,4,37,42` — potential forbidden-name: client infra
 - `api/k8s/deploy-sidekiq.yaml:26,31` — potential forbidden-name: client infra
 - `api/k8s/nodepool.yaml:1,18,22` — potential forbidden-name: client infra
@@ -94,7 +94,7 @@ No real secret found. All committed values are placeholders or ENV indirection.
 
 1. **Forbidden name — highest blast radius:** purge/rename the source-company handle across all code comments, config, DB names, k8s image registry + ingress host + configmap APP_BASE_URL, `web/vercel.json` CSP connect-src, both READMEs + wiki link, and the UI brand label/color comments in `AssessorLayout.tsx` / `index.css`. Re-point image registry + domains to placeholder values.
 2. **Remove stray internal docs:** delete `prompts/` (case-study brief + orchestration prompt) and the root README "Notes for the case study" section.
-3. **Verify client infra name** ("paragon") in k8s nodepool/compute-class labels — scrub if it identifies the client.
+3. **Verify client infra name** ("example") in k8s nodepool/compute-class labels — scrub if it identifies the client.
 4. **Confirm no real secrets** were ever committed into history (git log/`git grep` on history for keys/tokens/ENV), not just the current tree; rotate any that were.
 5. **Address EOL Rails 7.0** (upgrade path or document accepted risk) and the missing `web` lockfile (generate + commit `package-lock.json`).
 6. **Add a LICENSE file** (or remove nothing and accept "all rights reserved", explicitly stated).

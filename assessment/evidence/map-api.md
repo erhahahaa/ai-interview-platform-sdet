@@ -263,10 +263,10 @@ Rescue mappings (exception_handler.rb:15-36):
 
 ### K8s (`k8s/*.yaml`)
 - `configmap.yaml`: DB config, `DB_POOL 26`, `WEB_CONCURRENCY 2`, `RAILS_MAX_THREADS 16`, Gemini models (`gemini-2.0-flash-live-preview`, `gemini-2.5-flash`, `gemini-2.5-pro`), `PROACTIVE_RECONNECT_AFTER 510`, `APP_BASE_URL`, `ALLOWED_ORIGINS` (configmap.yaml:6-21).
-- `deployment.yaml`: replicas 1; nodeSelector `paragon-t2d-tau-pool` + toleration (deployment.yaml:36-43); `podAntiAffinity` required (1 API pod/node) (deployment.yaml:45-53); `terminationGracePeriodSeconds: 90` + preStop `sleep 30` (deployment.yaml:57, 124-128); startup/readiness/liveness probes all hit `/health:3001` (deployment.yaml:99-122); YJIT + jemalloc env (deployment.yaml:89-96); resources request 500m/512Mi, limit 2000m/2Gi (deployment.yaml:130-136).
+- `deployment.yaml`: replicas 1; nodeSelector `example-t2d-tau-pool` + toleration (deployment.yaml:36-43); `podAntiAffinity` required (1 API pod/node) (deployment.yaml:45-53); `terminationGracePeriodSeconds: 90` + preStop `sleep 30` (deployment.yaml:57, 124-128); startup/readiness/liveness probes all hit `/health:3001` (deployment.yaml:99-122); YJIT + jemalloc env (deployment.yaml:89-96); resources request 500m/512Mi, limit 2000m/2Gi (deployment.yaml:130-136).
 - `deploy-sidekiq.yaml`: replicas 1; `podAffinity` required to co-locate with an `ai-interview-api` pod + anti-affinity (deploy-sidekiq.yaml:34-51); `command: sidekiq -e staging` (deploy-sidekiq.yaml:61); readiness/liveness via `grep "READY: 1" /ai-interview/tmp/sidekiq_status` (deploy-sidekiq.yaml:91-113); YJIT disabled (deploy-sidekiq.yaml:81-82).
 - `ingress.yml`: **do not apply directly** — merge into shared `ingress-haproxy` (ingress.yml:1-7); sticky-session cookie affinity `AI_INTERVIEW_ROUTE` (ingress.yml:14-17); `timeout-tunnel: 5400s` (90 min) (ingress.yml:19); host `ai-interview-api.example.com` → service `ai-interview-app:3001` (ingress.yml:23-32).
-- `nodepool.yaml`: documentation for `paragon-t2d-tau-pool`; 1 API + 1 Sidekiq pod per node; resource budget table (nodepool.yaml:1-31).
+- `nodepool.yaml`: documentation for `example-t2d-tau-pool`; 1 API + 1 Sidekiq pod per node; resource budget table (nodepool.yaml:1-31).
 - `service.yaml`: ClusterIP `ai-interview-app`, selector `app: ai-interview-api`, port 3001→3001 (service.yaml:1-14).
 
 ### `Procfile`

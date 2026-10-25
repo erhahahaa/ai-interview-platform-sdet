@@ -23,12 +23,12 @@ spec:
     spec:
       # ── Dedicated node pool ─────────────────────────────────────────────────
       nodeSelector:
-        cloud.google.com/gke-nodepool: paragon-t2d-tau-pool
+        cloud.google.com/gke-nodepool: example-t2d-tau-pool
       
       tolerations:
         - key: cloud.google.com/compute-class
           operator: Equal
-          value: paragon-compute-class-tau-nodepool
+          value: example-compute-class-tau-nodepool
           effect: NoSchedule
 
       # ── Co-location rules ───────────────────────────────────────────────────
