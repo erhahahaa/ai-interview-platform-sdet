@@ -1,6 +1,6 @@
 # 01 — Platform Audit (draft, pre-fix baseline)
 
-Status: **draft** — severities and impact are from static analysis + read-only maps; each P0/P1 repro is written as a target command to be confirmed against a running local instance in Wave 1 (verifier V1 re-runs them from a clean checkout).
+Status: **draft** — severities and impact are from static analysis + read-only maps. F-1 and F-2 are **confirmed live** (see `evidence/findings/F-001.md`, `F-002.md`); F-3 and F-13 are evidenced statically. Remaining repros to be confirmed by the Wave-1 verifier (V1) from a clean checkout.
 
 ## Five-minute summary
 

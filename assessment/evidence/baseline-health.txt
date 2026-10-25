@@ -1,0 +1,11 @@
+=== GET /health ===
+{"status":"ok"}
+HTTP 200
+
+=== GET /api/v1/health ===
+{"status":"ok"}
+HTTP 200
+
+=== POST /auth/login (no body) ===
+{"errors":[{"status":401,"message":"Invalid email or password"}]}
+HTTP 401

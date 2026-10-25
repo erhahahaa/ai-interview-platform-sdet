@@ -1,0 +1,3 @@
+=== test-corp token exporting acme's portfolio #1 (cross-tenant) ===
+{"exported_at":"2026-10-25T23:41:03Z","portfolio":{"id":1,"session_id":1,"candidate_id":null,"generation_status":"complete","generated_at":"2026-10-25T23:41:02.842Z","generation_error":null,"skills":[{"id":1,"skill_id":null,"skill_label":"React / Frontend Development","is_discovered":false,"ai_level":3,"ai_confidence":"medium","evidence":["quote"],"competency_summary":"acme candidate summary"}],"overrides":[]}}
+HTTP 200
