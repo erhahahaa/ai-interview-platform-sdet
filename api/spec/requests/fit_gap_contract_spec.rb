@@ -10,7 +10,10 @@ RSpec.describe 'Fit/gap report contract', type: :request do
     create(:organization, name: 'Test Corp', scheme: 'test-corp',
                           identifier: 'test-corp', host: 'localhost')
   end
-  let!(:user) { create(:user, email: 'admin@example.com', password: 'password123', role: 'admin') }
+  let!(:user) do
+    create(:user, email: 'admin@example.com', password: 'password123', role: 'admin',
+                  organization: org)
+  end
   let!(:assessment) { create(:assessment, tenant_id: org.id, created_by: user.id) }
   let!(:session) { create(:session, assessment:, tenant_id: org.id) }
   let!(:portfolio) { create(:portfolio, session:, generation_status: 'complete') }
