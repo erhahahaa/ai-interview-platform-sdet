@@ -23,8 +23,8 @@ If this went in front of a client tomorrow I would worry most about: (1) one ten
 
 | ID | Sev | Class | Area | Impact (who/what is hurt) | How found | Caught by (net) | Final status |
 |---|---|---|---|---|---|---|---|
-| F-1 | P1 | BUILT-WRONG | auth / tenant | An admin of tenant A can mint a JWT for tenant B via the `X-Tenant-Scheme` header at login and read/write B's data | Static: `authentication_controller.rb` + `tenant_resolver_middleware.rb` | planned: contract + authz spec | open |
-| F-2 | P1 | BUILT-WRONG | authz / tenant | An assessor can export/override another tenant's portfolio by guessing an integer ID (`Portfolio.find`, `PortfolioSkill.joins(:portfolio).find`) | Static: `portfolios_controller.rb`, `portfolio_skills_controller.rb` | planned: object-level authz spec | open |
+| F-1 | P1 | BUILT-WRONG | auth / tenant | An admin of tenant A can mint a JWT for tenant B via the `X-Tenant-Scheme` header at login and read/write B's data | **Live repro (confirmed)** — `evidence/findings/F-001.md` | planned: contract + authz spec | open |
+| F-2 | P1 | BUILT-WRONG | authz / tenant | An assessor can export/override another tenant's portfolio by guessing an integer ID (`Portfolio.find`, `PortfolioSkill.joins(:portfolio).find`) | **Live repro (confirmed)** — `evidence/findings/F-002.md` | planned: object-level authz spec | open |
 | F-3 | P1 | BUILT-WRONG | seam / data | Fit/gap "Required" column renders blank (API `expected_level` vs web `required_level`); `is_override` badge never shows | Seam map: `fit_gap/engine.rb` vs `ComparisonTable.tsx` | planned: contract + component spec | open |
 | F-13 | P1 | SPEC-GAP→risk | dependency | Rails 7.0.8 EOL — unpatched CVEs in production | `bundle audit` / advisory DB + endoflife.date | planned: `dependency-audit` job | accepted risk (see below) |
 | F-4 | P2 | BUILT-WRONG | api | `system_prompt_generated: true` returned before the async job runs; a stopped Sidekiq leaves a nil prompt | Static: `assessments_controller.rb` | planned: request spec | open |
