@@ -1,0 +1,48 @@
+name: api-tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_interview_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      RAILS_ENV: test
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_NAME: ai_interview_test
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      REDIS_URL: redis://localhost:6379/1
+      SECRET_KEY_BASE: ci-test-secret-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.2'
+          bundler-cache: true
+          working-directory: api
+      - name: Set up database
+        working-directory: api
+        run: |
+          cp config/application.yml.sample config/application.yml
+          bundle exec rails db:create db:schema:load
+      - name: Run RSpec
+        working-directory: api
+        run: bundle exec rspec
