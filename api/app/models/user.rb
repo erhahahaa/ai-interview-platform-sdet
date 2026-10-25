@@ -3,6 +3,9 @@
 class User < ApplicationRecord
   has_secure_password
 
+  # F-001: a user has exactly one home tenant; login derives the JWT scheme from it.
+  belongs_to :organization, optional: true
+
   ROLES = %w[admin user].freeze
 
   validates :email, presence: true,

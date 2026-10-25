@@ -13,7 +13,7 @@ module Api
 
         return json_error('Invalid email or password', :unauthorized) unless user.role == 'admin'
 
-        scheme = resolve_scheme
+        scheme = resolve_scheme(user)
         token  = JsonWebToken.encode({ user_id: user.id, role: user.role, scheme: })
 
         json_response({ token:, user: { id: user.id, email: user.email, role: user.role } })
@@ -21,8 +21,10 @@ module Api
 
       private
 
-      def resolve_scheme
-        request.headers['X-Tenant-Scheme'].presence ||
+      # F-001: the JWT scheme must come from the user's own tenant, never from a
+      # client-controlled header (which previously allowed cross-tenant access).
+      def resolve_scheme(user)
+        user.organization&.scheme.presence ||
           ActiveRecord::Base.connection.select_value(
             'SELECT scheme FROM organizations LIMIT 1'
           ) || 'test-corp'

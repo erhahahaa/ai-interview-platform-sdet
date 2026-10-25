@@ -77,6 +77,17 @@ else
   puts "  Created organization: id=#{result['id']} scheme=#{result['scheme']}"
 end
 
+# ── Admin user (for login) ────────────────────────────────────────────────────
+admin_org = ActiveRecord::Base.connection.select_one(
+  "SELECT id FROM public.organizations WHERE scheme = '#{TEST_ORG[:scheme]}' LIMIT 1"
+)
+admin = User.find_or_initialize_by(email: 'admin@example.com')
+admin.password = 'password123'
+admin.role = 'admin'
+admin.organization_id = admin_org['id']
+admin.save!
+puts "  Admin user: admin@example.com (organization_id=#{admin_org['id']})"
+
 # ── B7 Skill Taxonomy (22 pilot skills) ──────────────────────────────────────
 
 B7_SKILLS = [

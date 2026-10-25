@@ -13,7 +13,10 @@ RSpec.describe 'Tenant isolation at login', type: :request do
     create(:organization, name: 'Acme Corp', scheme: 'acme',
                           identifier: 'acme', host: 'acme.local')
   end
-  let!(:user) { create(:user, email: 'admin@example.com', password: 'password123', role: 'admin') }
+  let!(:user) do
+    create(:user, email: 'admin@example.com', password: 'password123', role: 'admin',
+                  organization: test_corp)
+  end
   let!(:acme_assessment) do
     create(:assessment, name: 'Acme Secret Project', tenant_id: acme.id, created_by: user.id)
   end
