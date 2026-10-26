@@ -38,4 +38,23 @@ RSpec.describe 'Portfolio authorization', type: :request do
     # Correct behaviour: cross-tenant portfolio must not be reachable.
     expect(response).to have_http_status(:not_found)
   end
+
+  it 'does not allow overriding another tenant\'s portfolio skill by id' do
+    acme_skill = acme_portfolio.portfolio_skills.create!(
+      skill_label: 'React / Frontend Development', ai_level: 3,
+      ai_confidence: 'medium', competency_summary: 'x', evidence: []
+    )
+
+    post '/api/v1/auth/login',
+         params: { email: 'admin@example.com', password: 'password123' },
+         as: :json,
+         headers: { 'X-Tenant-Scheme' => 'test-corp' }
+    token = JSON.parse(response.body)['token']
+
+    post "/api/v1/portfolio_skills/#{acme_skill.id}/override",
+         params: { override: { override_level: 4 } },
+         as: :json, headers: auth_header(token)
+
+    expect(response).to have_http_status(:not_found)
+  end
 end

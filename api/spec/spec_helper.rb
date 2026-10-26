@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+SimpleCov.start do
+  skip '/spec/'
+  enable_coverage :branch
+  # Risk paths — the files that carry data-integrity / tenant-isolation logic.
+  group 'Risk paths', %w[
+    app/controllers/api/v1/authentication_controller.rb
+    app/controllers/api/v1/portfolios_controller.rb
+    app/controllers/api/v1/portfolio_skills_controller.rb
+    app/services/fit_gap/engine.rb
+    app/models/concerns/tenant_scoped.rb
+    app/models/user.rb
+  ]
+end
+
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
