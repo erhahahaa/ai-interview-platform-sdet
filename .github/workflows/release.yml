@@ -14,37 +14,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compute release status
-        id: verdict
         run: |
-          OPEN=""
-          if grep -rl 'Status: open' assessment/evidence/findings/F-0*.md 2>/dev/null | grep -q .; then
-            OPEN=$(grep -rl 'Status: open' assessment/evidence/findings/F-0*.md | tr '\n' ' ')
-          fi
-          RISK=""
-          if grep -rl 'Status: accepted risk' assessment/evidence/findings/F-0*.md 2>/dev/null | grep -q .; then
-            RISK=$(grep -rl 'Status: accepted risk' assessment/evidence/findings/F-0*.md | tr '\n' ' ')
-          fi
           {
             echo "# Release status for ${{ github.ref_name }}"
             echo
-            if [ -n "$OPEN" ]; then
-              echo "**RELEASE STATUS: BLOCKED** — open P0/P1 findings: $OPEN"
-              echo "BLOCKED" > verdict.txt
-            elif [ -n "$RISK" ]; then
-              echo "**RELEASE STATUS: BLOCKED** (ship with accepted risk) — $RISK"
-              echo "BLOCKED" > verdict.txt
-            else
-              echo "**RELEASE STATUS: READY**"
-              echo "READY" > verdict.txt
-            fi
           } >> "$GITHUB_STEP_SUMMARY"
-          cat "$GITHUB_STEP_SUMMARY"
-      - name: Publish release-status check
-        run: |
-          echo "status=$(cat verdict.txt)" >> "$GITHUB_OUTPUT"
-      - name: Create GitHub Release (READY only)
-        if: hashFiles('verdict.txt') == 'READY'
+          NOT_FIXED=$(grep -rL 'Status: fixed' assessment/evidence/findings/F-0*.md 2>/dev/null | tr '\n' ' ')
+          if [ -n "$NOT_FIXED" ]; then
+            echo "**RELEASE STATUS: BLOCKED** — findings not fixed: $NOT_FIXED" >> "$GITHUB_STEP_SUMMARY"
+            echo "BLOCKED: $NOT_FIXED"
+            exit 1
+          fi
+          echo "**RELEASE STATUS: READY**" >> "$GITHUB_STEP_SUMMARY"
+          echo "READY"
+  release:
+    needs: verdict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ github.ref_name }}" --generate-notes --title "${{ github.ref_name }}"
+        run: gh release create "${{ github.ref_name }}" --generate-notes --title "${{ github.ref_name }}"
