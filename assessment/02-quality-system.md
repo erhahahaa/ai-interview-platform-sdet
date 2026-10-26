@@ -16,6 +16,8 @@ runs: `dor-check` (6 self-test fixtures) → `api-test` (RSpec) → `web-test` (
 | `spec/requests/tenant_isolation_spec.rb` | F-001: login cannot self-select another tenant via `X-Tenant-Scheme`. | Tenant isolation on WebSocket endpoints (separate auth path). |
 | `spec/requests/portfolio_authorization_spec.rb` | F-002: portfolio/portfolio-skill lookups are tenant-scoped. | `fit_gap_reports`, `coverage_maps`, `transcript_turns` (reached only via scoped parents today). |
 | `spec/requests/fit_gap_contract_spec.rb` | F-003 (contract side): fit/gap comparisons emit `expected_level`, not `required_level`. | The web rendering of that field (covered by the Vitest test). |
+| `spec/services/fit_gap_engine_spec.rb` | F-003 (engine side): `expected_level`, `is_override`, and the override applied (candidate level). | Gemini narratives (stubbed here). |
+| `spec/requests/error_handling_spec.rb` | error/edge: 401 unauth, 422 invalid, 404 missing/cross-tenant. | Unknown routes (raise in request specs). |
 | `web/src/components/fitgap/ComparisonTable.test.tsx` | F-003 (render side): the "Required" column actually shows the level. | Other tables/columns. |
 | `secret-scan` (gitleaks) | Secrets/forbidden names in full git history. | Secrets not matching gitleaks rules. |
 | `tsc && vite build` | Type errors and build breakage. | Runtime-only errors. |

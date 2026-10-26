@@ -20,3 +20,20 @@ Every number is backed by a command + saved output (see `evidence/`). A number w
 Notes:
 - DORA's five delivery metrics are not honestly producible in one day; gate lead time + the revert test are recorded as proxies.
 - Baseline captured 2026-10-26 (Wave 0), before any fix. After-values at G3 and G5.
+
+## After (G3)
+
+| Measure | After value | How measured |
+|---|---|---|
+| Findings by severity & class | P0=0, P1=4, P2=5, P3=3; SPEC-GAP=1 | `01-audit.md` ledger |
+| Detection recall | 3/3 code-level P1s caught by CI (F-1, F-2, F-3); F-13 (dependency) → `dependency-audit` planned, not yet wired | red→green CI history |
+| Red for the right reason | all red jobs at G2 mapped to findings (api-tests/web-tests) | CI run list |
+| Gate precision on fixtures | 6/6 | `tools/dor-check/test_fixtures.sh` |
+| Revert test | not run as a separate branch (fixes committed with red→green; regression specs would re-red on revert) | — |
+| Flake rate | 3 identical runs (10 examples, 0 failures each) | `bundle exec rspec` × 3 |
+| Risk-path coverage | **58.1% line** (129/222) on the 6-file `risk-paths` list | SimpleCov, `coverage/.resultset.json` |
+| Mutation score | not run (cut) | — |
+| Gate lead time | PR open→verdict ~1 min (blocked PR dor-gate red in 7s) | CI runs |
+| Open P0/P1 at release | 1 (F-13, accepted risk) | ledger at `v1.0.0-rc.1` |
+
+Risk-path per-file line coverage: `authentication_controller` 100%, `user` 100%, `tenant_scoped` 100%, `fit_gap/engine` 79.4%, `portfolio_skills_controller` 41.9%, `portfolios_controller` 32.6%.

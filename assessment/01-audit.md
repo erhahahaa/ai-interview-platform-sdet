@@ -27,15 +27,15 @@ If this went in front of a client tomorrow I would worry most about: (1) one ten
 | F-2 | P1 | BUILT-WRONG | authz / tenant | An assessor can export/override another tenant's portfolio by guessing an integer ID (`Portfolio.find`, `PortfolioSkill.joins(:portfolio).find`) | **Live repro (confirmed)** — `evidence/findings/F-002.md` | `portfolio_authorization_spec.rb` | fixed in `908a9b5` |
 | F-3 | P1 | BUILT-WRONG | seam / data | Fit/gap "Required" column renders blank (API `expected_level` vs web `required_level`); `is_override` badge never shows | Seam map: `fit_gap/engine.rb` vs `ComparisonTable.tsx` | `fit_gap_contract_spec.rb` + `ComparisonTable.test.tsx` | fixed in `9ba3876` |
 | F-13 | P1 | SPEC-GAP→risk | dependency | Rails 7.0.8 EOL — unpatched CVEs in production | `bundle audit` / advisory DB + endoflife.date | planned: `dependency-audit` job | accepted risk (see below) |
-| F-4 | P2 | BUILT-WRONG | api | `system_prompt_generated: true` returned before the async job runs; a stopped Sidekiq leaves a nil prompt | Static: `assessments_controller.rb` | planned: request spec | open |
-| F-5 | P2 | BUILT-WRONG | api | Transcript `total` is the filtered count, not the total | Static: `sessions_controller.rb` | planned: request spec | open |
-| F-6 | P2 | BUILT-WRONG | web | Signup is dead — `/signup` has no route; `SignupPage` is not mounted | Seam map: `auth.ts` vs `routes.rb` | planned: contract spec | open |
-| F-9 | P2 | BUILT-WRONG | security | Wildcard `ALLOWED_ORIGINS: "*"` + `expose: Authorization` in sample config | Static: `application.yml.sample`, `cors.rb` | planned: config check | open |
-| F-11 | P2 | BUILT-WRONG | perf | Assessment list N+1 — `max_by(&:created_at)` loads every session per row | Static: `assessments_controller.rb` | planned: query-count spec | open |
-| F-7 | SPEC-GAP | — | inputs | No PRD / acceptance criteria / design plan / tests / CI / contract anywhere | input-gaps matrix | planned: `dor-gate` + `tools/trace` | open |
-| F-8 | P3 | BUILT-WRONG | docs | Port / folder / model drift across READMEs, `.env.example`, k8s | hygiene map | — | open |
-| F-10 | P3 | BUILT-WRONG | api | `Organization.default_organization` returns `where(id: 0)` (dead fallback) | Static: `organization.rb` | — | open |
-| F-12 | P3 | BUILT-WRONG | web | `PortfolioSkill.ai_level` typed string but API returns integer | Seam map: `types/index.ts` vs `portfolio_skill_json` | — | open |
+| F-4 | P2 | BUILT-WRONG | api | `system_prompt_generated: true` returned before the async job runs; a stopped Sidekiq leaves a nil prompt | Static: `assessments_controller.rb` | planned: request spec | remaining |
+| F-5 | P2 | BUILT-WRONG | api | Transcript `total` is the filtered count, not the total | Static: `sessions_controller.rb` | planned: request spec | remaining |
+| F-6 | P2 | BUILT-WRONG | web | Signup is dead — `/signup` has no route; `SignupPage` is not mounted | Seam map: `auth.ts` vs `routes.rb` | planned: contract spec | remaining |
+| F-9 | P2 | BUILT-WRONG | security | Wildcard `ALLOWED_ORIGINS: "*"` + `expose: Authorization` in sample config | Static: `application.yml.sample`, `cors.rb` | planned: config check | remaining |
+| F-11 | P2 | BUILT-WRONG | perf | Assessment list N+1 — `max_by(&:created_at)` loads every session per row | Static: `assessments_controller.rb` | planned: query-count spec | remaining |
+| F-7 | SPEC-GAP | — | inputs | No PRD / acceptance criteria / design plan / tests / CI / contract anywhere | input-gaps matrix | planned: `dor-gate` + `tools/trace` | remaining |
+| F-8 | P3 | BUILT-WRONG | docs | Port / folder / model drift across READMEs, `.env.example`, k8s | hygiene map | — | remaining |
+| F-10 | P3 | BUILT-WRONG | api | `Organization.default_organization` returns `where(id: 0)` (dead fallback) | Static: `organization.rb` | — | remaining |
+| F-12 | P3 | BUILT-WRONG | web | `PortfolioSkill.ai_level` typed string but API returns integer | Seam map: `types/index.ts` vs `portfolio_skill_json` | — | remaining |
 
 Severity counts: P0 = 0, P1 = 4, P2 = 5, P3 = 3, SPEC-GAP = 1.
 
@@ -45,13 +45,25 @@ Severity counts: P0 = 0, P1 = 4, P2 = 5, P3 = 3, SPEC-GAP = 1.
 - **P-β "tenant boundary only on parent models."** `TenantScoped` is column-driven; child records (`portfolio`, `portfolio_skill`, `fit_gap_report`, `coverage_map`, `transcript_turn`) have no tenant column and are reached by global `find`. Behind F-1, F-2.
 - **P-γ "auth trusts attacker-controlled input."** Login takes `scheme` from an unauthenticated header; the tenant resolver reads `scheme` from an *unverified* JWT. Behind F-1.
 
+## Error & edge states (covered)
+
+Probed by `api/spec/requests/error_handling_spec.rb` plus the cross-tenant specs:
+
+- Unauthenticated (no token) → **401** (was 403 "tenant not found"; fixed by running auth before tenant resolution in `application_controller.rb`).
+- Unsupported `time_limit_min` (42) → 422 · missing `name` → 422.
+- Missing record (`/assessments/999999`) → 404.
+- Cross-tenant record (assessment / portfolio / portfolio-skill) → 404.
+- Unknown route → 404 in production (Rails `show_exceptions`); raises in request specs, so not asserted there.
+
 ## Not examined (honest coverage)
 
-- No live run yet: Gemini/Sidekiq/Redis behavior, WebSocket reconnect races, and the audio/interview flow (`useAudioWebSocket`, `InterviewPage`, `HardwareCheck`) are not yet exercised; they need a running instance + Playwright.
-- No OWASP fuzzing (Schemathesis) or mutation testing yet.
-- Dependency audit (`bundle audit` / `osv-scanner` / `npm audit`) is planned but not yet run — F-13 severity is from the EOL advisory DB, to be confirmed by `bundle audit`.
-- The k8s "client infra" nodepool name (see hygiene) is a candidate forbidden name to confirm with the owner.
+- Live Gemini/Sidekiq/Redis behavior, WebSocket reconnect races, and the audio/interview UI flow (`useAudioWebSocket`, `InterviewPage`, `HardwareCheck`) — need a running instance + Playwright.
+- OWASP fuzzing (Schemathesis) and mutation testing — not run.
+- `bundle audit` / `osv-scanner` — not run; F-13 severity is from the EOL advisory DB.
+- The k8s "client infra" nodepool name was scrubbed; nothing further to confirm.
 
 ## Final status per item
 
-To be filled at Wave 5 with `fixed in <sha>` / `remaining (owner: …, expires: …)`.
+- F-1, F-2, F-3 → **fixed** (`3300aa2`, `908a9b5`, `9ba3876`).
+- F-13 → **accepted risk** (owner: Rahmat Hidayatullah; expires before the next GA release).
+- F-4, F-5, F-6, F-7, F-8, F-9, F-10, F-11, F-12 → **remaining** (P2/P3/SPEC-GAP — consciously out of scope for this pass).

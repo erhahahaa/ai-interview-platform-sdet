@@ -21,7 +21,7 @@ BLOCKED for a full `v1.0.0`. The three code-level P1 defects are fixed, but one 
 ## Risk owner, mitigation, expiry
 
 - **Risk:** unpatched Rails 7.0 (and legacy puma 5.x / rack 2.x).
-- **Owner:** platform engineering (case-study author, until handed to a named owner).
+- **Owner:** Rahmat Hidayatullah (case-study author).
 - **Mitigation:** upgrade Rails to 8.x (and puma/rack to current) before any client go-live; keep the `dependency-audit` CI job on every change; do not expose the service publicly beyond the review window.
 - **Expiry / re-check:** re-evaluate before the next release; a GA tag must not be cut while F-13 is open.
 
