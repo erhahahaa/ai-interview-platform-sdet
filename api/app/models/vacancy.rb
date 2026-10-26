@@ -12,3 +12,5 @@ class Vacancy < ApplicationRecord
                                  allow_destroy: true,
                                  reject_if: :all_blank
 end
+
+# demo: trivial no-spec change
