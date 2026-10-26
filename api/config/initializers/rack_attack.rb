@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Disable throttling in tests so request specs don't trip the login rate limit.
+Rack::Attack.enabled = false if Rails.env.test?
+
 class Rack::Attack
   # Use Redis for distributed throttle state across pods.
   Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
